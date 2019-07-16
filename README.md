@@ -1,3 +1,14 @@
+# Quick Setup
+
+Below is a quick setup to create a test environment:
+
+Using Ananconda to create a virtual environment would be beneficial as it supports all the frameworks and packages. 
+```
+conda create -n pytorch_virtual_environment python=3.7 anaconda
+conda install -c conda-forge opencv
+conda install -c pytorch pytorch
+```
+-----------------------------------------------------------------------------------------------------------------------
 # Deeper and Wider Siamese Networks for Real-Time Visual Tracking
 we are hiring talented interns: houwen.peng@microsoft.com
 ## News
