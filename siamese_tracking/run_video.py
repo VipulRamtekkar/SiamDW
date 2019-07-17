@@ -126,8 +126,8 @@ def track_video(tracker, model, video_path, init_box=None):
             else:
                 box_color = (0,255,0)
 
-            ret, frame = cap.read()
-            frame_disp = frame.copy()
+            #ret, frame = cap.read()
+            #frame_disp = frame.copy()
 
             cv2.putText(frame_disp, 'Select target ROI and press ENTER', (20, 30), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                        1.5,
