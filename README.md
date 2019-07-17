@@ -19,7 +19,7 @@ conda install -c pytorch pytorch
 Go in the SiamDW folder
 Note if you want to enter path to images in the video argument include %0n.[image format] where n is the number of digits in the name of the image eg. for ./0000.png path to such images will be ./%04d.png 
 ```
-python siamese_tracking/run_video.py --arch SiamRPNRes22 --resume snapshot/CIResNet22_RPN.pth --video [Path of the video/images] --init_box [x, y, w, h]
+python siamese_tracking/run_video.py --arch SiamRPNRes22 --resume snapshot/CIResNet22_RPN.pth --video Path of the video/images --init_bbox [x,y,w,h]
 ```
 
 -----------------------------------------------------------------------------------------------------------------------
