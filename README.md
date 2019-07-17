@@ -4,9 +4,21 @@ Below is a quick setup to create a test environment:
 
 Using Ananconda to create a virtual environment would be beneficial as it supports all the frameworks and packages. 
 ```
+git clone https://github.com/VipulRamtekkar/SiamDW
+cd SiamDW
+mkdir output bbox snapshot
+cd snapshot
+```
+download the [model](https://drive.google.com/open?id=1tBllNtv-90Ih2EP_lnRCBzxnZeFPRnPx)
+```
 conda create -n pytorch_virtual_environment python=3.7 anaconda
+conda activate pytorch_virtual_environment
 conda install -c conda-forge opencv
 conda install -c pytorch pytorch
+```
+Go in the SiamDW folder
+```
+python siamese_tracking/run_video.py --arch SiamRPNRes22 --resume snapshot/CIResNet22_RPN.pth --video [Path of the video/images] --init_box [x, y, w, h]```
 ```
 -----------------------------------------------------------------------------------------------------------------------
 # Deeper and Wider Siamese Networks for Real-Time Visual Tracking
