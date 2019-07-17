@@ -40,8 +40,6 @@ def parse_args():
 
 def track_video(tracker, model, video_path, init_box=None):
 
-    #assert os.path.isfile(video_path), "please provide a valid video file"
-
     cap = cv2.VideoCapture(video_path)
     display_name = 'Video: {}'.format(video_path.split('/')[-1])
     cv2.namedWindow(display_name, cv2.WINDOW_NORMAL | cv2.WINDOW_KEEPRATIO)
@@ -56,6 +54,7 @@ def track_video(tracker, model, video_path, init_box=None):
     # init
     if init_box is not None:
         lx, ly, w, h = init_box
+        f.write(lx+"\t"+ly+"\t"+w+"\t"+h+"\n")
         target_pos = np.array([lx + w/2, ly + h/2])
         target_sz = np.array([w, h])
         state = tracker.init(frame, target_pos, target_sz, model)  # init tracker
@@ -69,6 +68,7 @@ def track_video(tracker, model, video_path, init_box=None):
                        1, (0, 0, 255), 1)
 
             lx, ly, w, h = cv2.selectROI(display_name, frame_disp, fromCenter=False)
+            f.write(lx+"\t"+ly+"\t"+w+"\t"+h+"\n")
             target_pos = np.array([lx + w / 2, ly + h / 2])
             target_sz = np.array([w, h])
             state = tracker.init(frame_disp, target_pos, target_sz, model)  # init tracker
@@ -76,7 +76,7 @@ def track_video(tracker, model, video_path, init_box=None):
             break
     i = 0
     restarts = 0
-    #assert os.path.isfile('./bbox'), "Please create a directory called bbox to store the values of the bounding boxes"
+    assert os.path.exists('./bbox'), "Please create a directory called bbox to store the values of the bounding boxes"
     f = open('./bbox/SiamRPN.txt','+a')
     box_color = (0,255,0)
     while True:
@@ -103,7 +103,7 @@ def track_video(tracker, model, video_path, init_box=None):
         cv2.putText(frame_disp, 'FPS: '+str(fps), (20, 80), cv2.FONT_HERSHEY_SIMPLEX, 1,
                    font_color, 2)
         frame_name = '{:04d}'.format(i)
-        #assert os.path.isfile(args.output), "Please create a directory to store the output files"
+        assert os.path.exists("./output"), "Please create a directory to store the output files"
         cv2.imwrite("./output/"+str(frame_name)+".png",frame_disp)
 
         x = x1
@@ -125,9 +125,6 @@ def track_video(tracker, model, video_path, init_box=None):
                 box_color = (255,0,0)
             else:
                 box_color = (0,255,0)
-
-            #ret, frame = cap.read()
-            #frame_disp = frame.copy()
 
             cv2.putText(frame_disp, 'Select target ROI and press ENTER', (20, 30), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                        1.5,
