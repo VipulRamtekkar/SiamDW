@@ -32,7 +32,7 @@ def parse_args():
     parser.add_argument('--resume', default='./snapshot/CIResNet22RPN.model', type=str, help='pretrained model')
     parser.add_argument('--video', default='./data/%04d.png', type=str, help='video file path')
     parser.add_argument('--init_bbox', default=None, help='bbox in the first frame None or [lx, ly, w, h]')
-    parser.add_argument('--output', defalut='./output', help='path of the output')
+    parser.add_argument('--output', default='./output', help='path of the output')
     args = parser.parse_args()
 
     return args
@@ -40,7 +40,7 @@ def parse_args():
 
 def track_video(tracker, model, video_path, init_box=None):
 
-    assert os.path.isfile(video_path), "please provide a valid video file"
+    #assert os.path.isfile(video_path), "please provide a valid video file"
 
     cap = cv2.VideoCapture(video_path)
     display_name = 'Video: {}'.format(video_path.split('/')[-1])
@@ -76,7 +76,7 @@ def track_video(tracker, model, video_path, init_box=None):
             break
     i = 0
     restarts = 0
-    assert os.path.isfile('./bbox'), Please create a directory called bbox to store the values of the bounding boxes
+    #assert os.path.isfile('./bbox'), "Please create a directory called bbox to store the values of the bounding boxes"
     f = open('./bbox/SiamRPN.txt','+a')
     box_color = (0,255,0)
     while True:
@@ -86,26 +86,26 @@ def track_video(tracker, model, video_path, init_box=None):
             return
 
         frame_disp = frame.copy()
-        
+
         timer = cv2.getTickCount()
         # Draw box
         state = tracker.track(state, frame_disp)  # track
-        
+
         fps = cv2.getTickFrequency()/(cv2.getTickCount()-timer)
         location = cxy_wh_2_rect(state['target_pos'], state['target_sz'])
         x1, y1, x2, y2 = int(location[0]), int(location[1]), int(location[0] + location[2]), int(location[1] + location[3])
-        font_color = (0, 0, 0)
+        font_color = (0, 0, 255)
         cv2.rectangle(frame_disp, (x1, y1), (x2, y2), box_color, 5)
-        cv2.putText(frame_disp, 'Restarts: '+str(restarts), (20, 30), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1,
-                   font_color, 1)
-        cv2.putText(frame_disp, 'Frame Number: '+'{:04d}'.format(i), (20, 55), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1,
-                   font_color, 1)
-        cv2.putText(frame_disp, 'FPS: '+str(fps), (20, 80), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1,
-                   font_color, 1)
+        cv2.putText(frame_disp, 'Restarts: '+str(restarts), (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                   font_color, 2)
+        cv2.putText(frame_disp, 'Frame Number: '+'{:04d}'.format(i), (20, 55), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                   font_color, 2)
+        cv2.putText(frame_disp, 'FPS: '+str(fps), (20, 80), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                   font_color, 2)
         frame_name = '{:04d}'.format(i)
-        assert os.path.isfile(args.output), Please create a directory to store the output files
-        cv2.imwrite(os.path.join(args.output,frame_name),frame_disp)
-            
+        #assert os.path.isfile(args.output), "Please create a directory to store the output files"
+        cv2.imwrite("./output/"+str(frame_name)+".png",frame_disp)
+
         x = x1
         y = y1
         w = x2 - x1
@@ -125,7 +125,7 @@ def track_video(tracker, model, video_path, init_box=None):
                 box_color = (255,0,0)
             else:
                 box_color = (0,255,0)
-                
+
             ret, frame = cap.read()
             frame_disp = frame.copy()
 
