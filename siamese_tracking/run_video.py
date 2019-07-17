@@ -76,7 +76,9 @@ def track_video(tracker, model, video_path, init_box=None):
             break
     i = 0
     restarts = 0
+    assert os.path.isfile('./bbox'), Please create a directory called bbox to store the values of the bounding boxes
     f = open('./bbox/SiamRPN.txt','+a')
+    box_color = (0,255,0)
     while True:
         ret, frame = cap.read()
 
@@ -84,19 +86,26 @@ def track_video(tracker, model, video_path, init_box=None):
             return
 
         frame_disp = frame.copy()
-
+        
+        timer = cv2.getTickCount()
         # Draw box
         state = tracker.track(state, frame_disp)  # track
+        
+        fps = cv2.getTickFrequency()/(cv2.getTickCount()-timer)
         location = cxy_wh_2_rect(state['target_pos'], state['target_sz'])
         x1, y1, x2, y2 = int(location[0]), int(location[1]), int(location[0] + location[2]), int(location[1] + location[3])
-
-        cv2.rectangle(frame_disp, (x1, y1), (x2, y2), (0, 255, 0), 5)
+        font_color = (0, 0, 0)
+        cv2.rectangle(frame_disp, (x1, y1), (x2, y2), box_color, 5)
         cv2.putText(frame_disp, 'Restarts: '+str(restarts), (20, 30), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1,
                    font_color, 1)
+        cv2.putText(frame_disp, 'Frame Number: '+'{:04d}'.format(i), (20, 55), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1,
+                   font_color, 1)
+        cv2.putText(frame_disp, 'FPS: '+str(fps), (20, 80), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1,
+                   font_color, 1)
         frame_name = '{:04d}'.format(i)
+        assert os.path.isfile(args.output), Please create a directory to store the output files
         cv2.imwrite(os.path.join(args.output,frame_name),frame_disp)
-        assert os.path.isfile('./bbox'), Please create a directory called bbox to store the values of the bounding boxes
-        
+            
         x = x1
         y = y1
         w = x2 - x1
@@ -105,14 +114,6 @@ def track_video(tracker, model, video_path, init_box=None):
         box = [str(i) for i in bbox]
         f.write(box[0]+"\t"+box[1]+"\t"+box[2]+"\t"+box[3]+"\n")
 
-        font_color = (0, 0, 0)
-        cv2.putText(frame_disp, 'Tracking!', (20, 30), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1,
-                   font_color, 1)
-        cv2.putText(frame_disp, 'Press r to reset', (20, 55), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1,
-                   font_color, 1)
-        cv2.putText(frame_disp, 'Press q to quit', (20, 80), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1,
-                   font_color, 1)
-
         # Display the resulting frame
         cv2.imshow(display_name, frame_disp)
         key = cv2.waitKey(1)
@@ -120,6 +121,11 @@ def track_video(tracker, model, video_path, init_box=None):
             break
         elif key == ord('r'):
             restarts = restarts + 1
+            if restarts%2 == 1:
+                box_color = (255,0,0)
+            else:
+                box_color = (0,255,0)
+                
             ret, frame = cap.read()
             frame_disp = frame.copy()
 
