@@ -29,9 +29,10 @@ def parse_args():
     """
     parser = argparse.ArgumentParser(description='PyTorch SiamFC Tracking Test')
     parser.add_argument('--arch', default='SiamRPNRes22', type=str, help='backbone architecture')
-    parser.add_argument('--resume', default='/data/zpzhang/project4/siamese/Siamese/snapshot/CIResNet22RPN.model', type=str, help='pretrained model')
-    parser.add_argument('--video', default='/data/zpzhang/project4/siamese/Siamese/videos/bag.mp4', type=str, help='video file path')
+    parser.add_argument('--resume', default='./snapshot/CIResNet22RPN.model', type=str, help='pretrained model')
+    parser.add_argument('--video', default='./data/%04d.png', type=str, help='video file path')
     parser.add_argument('--init_bbox', default=None, help='bbox in the first frame None or [lx, ly, w, h]')
+    parser.add_argument('--output', defalut='./output', help='path of the output')
     args = parser.parse_args()
 
     return args
@@ -73,7 +74,9 @@ def track_video(tracker, model, video_path, init_box=None):
             state = tracker.init(frame_disp, target_pos, target_sz, model)  # init tracker
 
             break
-
+    i = 0
+    restarts = 0
+    f = open('./bbox/SiamRPN.txt','+a')
     while True:
         ret, frame = cap.read()
 
@@ -88,6 +91,19 @@ def track_video(tracker, model, video_path, init_box=None):
         x1, y1, x2, y2 = int(location[0]), int(location[1]), int(location[0] + location[2]), int(location[1] + location[3])
 
         cv2.rectangle(frame_disp, (x1, y1), (x2, y2), (0, 255, 0), 5)
+        cv2.putText(frame_disp, 'Restarts: '+str(restarts), (20, 30), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1,
+                   font_color, 1)
+        frame_name = '{:04d}'.format(i)
+        cv2.imwrite(os.path.join(args.output,frame_name),frame_disp)
+        assert os.path.isfile('./bbox'), Please create a directory called bbox to store the values of the bounding boxes
+        
+        x = x1
+        y = y1
+        w = x2 - x1
+        h = y2 - y1
+        bbox = [x,y,w,h]
+        box = [str(i) for i in bbox]
+        f.write(box[0]+"\t"+box[1]+"\t"+box[2]+"\t"+box[3]+"\n")
 
         font_color = (0, 0, 0)
         cv2.putText(frame_disp, 'Tracking!', (20, 30), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1,
@@ -103,6 +119,7 @@ def track_video(tracker, model, video_path, init_box=None):
         if key == ord('q'):
             break
         elif key == ord('r'):
+            restarts = restarts + 1
             ret, frame = cap.read()
             frame_disp = frame.copy()
 
@@ -115,8 +132,10 @@ def track_video(tracker, model, video_path, init_box=None):
             target_pos = np.array([lx + w / 2, ly + h / 2])
             target_sz = np.array([w, h])
             state = tracker.init(frame_disp, target_pos, target_sz, model)
-
+        i = i + 1
     # When everything done, release the capture
+    os.rename('./bbox/SiamRPN.txt','./bbox/SiamRPN_'+str(restarts)+'.txt')
+    f.close()
     cap.release()
     cv2.destroyAllWindows()
 
