@@ -18,7 +18,7 @@ conda install -c pytorch pytorch
 ```
 Go in the SiamDW folder
 ```
-python siamese_tracking/run_video.py --arch SiamRPNRes22 --resume snapshot/CIResNet22_RPN.pth --video [Path of the video/images] --init_box [x, y, w, h]```
+python siamese_tracking/run_video.py --arch SiamRPNRes22 --resume snapshot/CIResNet22_RPN.pth --video [Path of the video/images] --init_box [x, y, w, h]
 ```
 -----------------------------------------------------------------------------------------------------------------------
 # Deeper and Wider Siamese Networks for Real-Time Visual Tracking
